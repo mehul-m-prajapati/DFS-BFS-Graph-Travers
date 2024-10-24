@@ -13,6 +13,8 @@ const { validateSignup } = require('./middlewares/validation');
 const http = require('http');
 const { Server } = require('socket.io');
 const WebSocket = require('ws');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client("test");
 
 // Load environment variables
 dotenv.config();
@@ -137,6 +139,28 @@ app.post('/api/login', async (req, res) => {
     } catch (error) {
         console.error('Error during signin:', error);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+async function verify(token) {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+    });
+    const payload = ticket.getPayload();
+    const userId = payload['sub'];
+    // TODO: Handle the user in your application (e.g., create session, retrieve user info, etc.)
+}
+
+// Express route example
+app.post('/google-login', async (req, res) => {
+    const { idToken } = req.body;
+    try {
+        const user = await verify(idToken);
+        // Proceed with your session logic
+        res.json(user);
+    } catch (error) {
+        res.status(401).send('Unauthorized');
     }
 });
 

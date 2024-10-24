@@ -55,8 +55,13 @@ export class LoginPageComponent {
   }
 
   loginWithGoogle(): void {
-    // Placeholder for future Google authentication integration
-    console.log('Google login initiated');
-    this.toastr.success('Google login successful', 'Success');
+    this.authService.loginWithGoogle()/*
+      .then(() => {
+        this.toastr.success('Google login successful', 'Success');
+        this.router.navigate(['/mainIndex']);
+      })
+      .catch((error: any) => {
+        this.toastr.error('Google login failed', 'Error');
+      });*/
   }
 }

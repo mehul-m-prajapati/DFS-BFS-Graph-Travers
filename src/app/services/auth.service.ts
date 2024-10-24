@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
+
+declare const gapi: any; // Declare gapi to avoid TypeScript errors
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +15,11 @@ export class AuthService {
   private apiUrl = environment.BACKEND_API_URL;
   userList: any[] = []; // Initialize userList as an empty array
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toastr: ToastrService,
+   ) {}
 
   signUp(userData: {
     username: string;
@@ -36,6 +43,18 @@ export class AuthService {
 
   getAllUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/users`);
+  }
+
+  loginWithGoogle(): void {
+    const auth2 = gapi.auth2.getAuthInstance();
+
+    auth2.signIn().then((googleUser: any) => {
+      const idToken = googleUser.getAuthResponse().id_token;
+
+    }).catch((error: any) => {
+      console.error('Google login error', error);
+      this.toastr.error('Google login failed', 'Error');
+    });
   }
 
   logout(): void {
